@@ -77,3 +77,7 @@ result_label = tk.Label(root, text="Determinant: ")
 result_label.grid(row=3, column=0, columnspan=4)
 
 root.mainloop()
+
+#7 2  3
+#3  4 3
+#0  12 4
