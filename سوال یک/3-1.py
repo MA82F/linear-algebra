@@ -80,3 +80,13 @@ result_label = tk.Label(root, text="Determinant: ")
 result_label.pack()
 
 root.mainloop()
+
+
+""""""
+    submat = get_submatrix00nn(matrix, 0, 0,n-1)
+    divisionbyzero = calculate_determinant(submat)
+    if divisionbyzero == 0:
+        submat[1], submat[2] = submat[2], submat[1]
+        divisionbyzero = calculate_determinant(submat)
+    return (sub_det0 * sub_det3 - sub_det1 * sub_det2)*(1/divisionbyzero)
+""""""
