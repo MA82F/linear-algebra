@@ -14,7 +14,6 @@ def mod_inverse(a, m):
             return x
     return None
 
-
 key_matrix = []
 
 
@@ -105,34 +104,13 @@ def calculate_determinant(matrix,divisionbyzeroflag):
     return (sub_det0 * sub_det3 - sub_det1 * sub_det2)*(1/divisionbyzero)
     #return det
 
-
-
-
-def is_invertible(matrix, n):
-    det = calculate_determinant(matrix,divisionbyzeroflag)
-    if divisionbyzeroflag :
-        matrix[0], matrix[1] = matrix[1], matrix[0]
-        det = calculate_determinant(matrix,divisionbyzeroflag=True)
-    det = det % 27
-    return det != 0 and mod_inverse(det, 27) is not None
-
-def matrix_mult(A, B, size):
-    result = [[0] * size for _ in range(size)]
-    for i in range(size):
-        for j in range(size):
-            for k in range(size):
-                result[i][j] += A[i][k] * B[k][j]
-            result[i][j] %= 27
-    return result
-
-
 def get_submatrix(matrix, row, col):
     """
     Generate a submatrix by removing the specified row and column.
     """
     return [r[:col] + r[col+1:] for r in (matrix[:row] + matrix[row+1:])]
 
-def matrix_mod_inverse(matrix,divisionbyzeroflag, modulus):
+def matrix_mod_inverse(matrix, modulus):
     """
     Find the matrix inverse under modulo.
     """
@@ -156,10 +134,44 @@ def matrix_mod_inverse(matrix,divisionbyzeroflag, modulus):
     divisionbyzeroflag = False
     return adjugate_matrix
 
-def hill_cipher_decrypt(ciphertext,divisionbyzeroflag,key_matrix, n):
+def is_invertible(matrix, n):
+    det = calculate_determinant(matrix,divisionbyzeroflag)
+    if divisionbyzeroflag :
+        matrix[0], matrix[1] = matrix[1], matrix[0]
+        det = calculate_determinant(matrix,divisionbyzeroflag=True)
+    det = det % 27
+    divisionbyzeroflag = False
+    return det != 0 and mod_inverse(det, 27) is not None
+
+def matrix_mult(A, B, size):
+    result = [[0] * size for _ in range(size)]
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                result[i][j] += A[i][k] * B[k][j]
+            result[i][j] %= 27
+    return result
+
+def hill_cipher_encrypt(plaintext, key_matrix, n):
+    plaintext_numbers = [char_to_num(c) for c in plaintext]
+    while len(plaintext_numbers) % n != 0:
+        plaintext_numbers.append(char_to_num('_'))
+
+    encrypted_numbers = []
+    for i in range(0, len(plaintext_numbers), n):
+        chunk = plaintext_numbers[i:i + n]
+        encrypted_chunk = [0] * n
+        for row in range(n):
+            encrypted_chunk[row] = sum(key_matrix[row][col] * chunk[col] for col in range(n)) % 27
+        encrypted_numbers.extend(encrypted_chunk)
+
+    encrypted_text = ''.join(num_to_char(num) for num in encrypted_numbers)
+    return encrypted_text
+
+def hill_cipher_decrypt(ciphertext, key_matrix, n):
     ciphertext_numbers = [char_to_num(c) for c in ciphertext]
     
-    inv_key_matrix = matrix_mod_inverse(key_matrix,divisionbyzeroflag, 27)
+    inv_key_matrix = matrix_mod_inverse(key_matrix, 27)
     if inv_key_matrix is None:
         return "NO_VALID_KEY"
     
@@ -174,15 +186,16 @@ def hill_cipher_decrypt(ciphertext,divisionbyzeroflag,key_matrix, n):
     decrypted_text = ''.join(num_to_char(num) for num in decrypted_numbers)
     return decrypted_text
 
-
-
 n = int(input())
 for _ in range(n):
     row = list(map(int, input().split()))
     key_matrix.append(row)
-plaintext = input()
+#if not is_invertible(key_matrix, n):
+#    print("NO_VALID_KEY")
 
-decrypted_text = hill_cipher_decrypt(plaintext,divisionbyzeroflag,key_matrix, n)
-if decrypted_text[-1] == "_":
-    decrypted_text = decrypted_text[:-1]
+plaintext = input()
+#encrypted_text = hill_cipher_encrypt(plaintext, key_matrix, n)
+#print("Encrypted:", encrypted_text)
+
+decrypted_text = hill_cipher_decrypt(plaintext, key_matrix, n)
 print(decrypted_text)
