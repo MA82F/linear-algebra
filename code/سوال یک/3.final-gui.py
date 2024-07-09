@@ -79,7 +79,7 @@ def get_matrix_input():
             if divisionbyzeroflag :
                 matrix[i], matrix[i+1] = matrix[i+1], matrix[i]
                 divisionbyzeroflag = False
-                if i%2 == 0:
+                if i%2 == 1:
                     determinant = - calculate_determinant(matrix)
                 determinant = calculate_determinant(matrix)
             else:
